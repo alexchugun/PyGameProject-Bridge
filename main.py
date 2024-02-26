@@ -22,8 +22,8 @@ world_data = [
     [1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 ]
 
-player = Player(50, 700)
 world = World(world_data)
+player = Player(0, 650, world.tile_list)
 
 while is_running:
     screen.blit(background_image, (0, 0))
