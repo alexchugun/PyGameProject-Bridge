@@ -25,7 +25,8 @@ world_data = [
     [1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 ]
 
-world = World(world_data)
+world = World()
+world.set_data(world_data)
 player = Player(0, 650, world.tile_list)
 h = 0
 
@@ -53,8 +54,8 @@ while is_running:
 
     if is_drawing_bridge:
         pygame.draw.line(screen, 'black',
-                         [(player.rect.x + player.image_width) // 2, player.rect.y + player.image_height],
-                         [(player.rect.x + player.image_width) // 2, player.rect.y - h], 5)
+                         [player.rect.x, player.rect.y + player.image_height],
+                         [player.rect.x, player.rect.y - h], 5)
         h += 3
 
     if is_falling_bridge:
@@ -62,10 +63,21 @@ while is_running:
             x_ = h1 * sin_grad(a)
             y_ = h1 * cos_grad(a)
             pygame.draw.line(screen, 'black',
-                             [(player.rect.x + player.image_width) // 2, player.rect.y + player.image_height],
-                             [(player.rect.x + player.image_width) // 2 + x_, player.rect.y + player.image_height - y_],
+                             [player.rect.x, player.rect.y + player.image_height],
+                             [player.rect.x + x_, player.rect.y + player.image_height - y_],
                              5)
             a += 1
+        else:
+            is_falling_bridge = False
+            a = 0
+
+            tile_index_start = player.rect.x // TILE_SIZE if player.rect.x != 0 else 0
+            tile_index_end = (player.rect.x + h1) // TILE_SIZE
+
+            for i in range(tile_index_start, tile_index_end):
+                world_data[0][i] = 2
+            world.set_data(world_data)
+            print(tile_index_start, tile_index_end)
 
     pygame.display.update()
     clock.tick(FPS)
