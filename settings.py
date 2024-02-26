@@ -3,3 +3,4 @@ SCREEN_HEIGHT = 1000
 FPS = 60
 
 VELOCITY = 5
+TILE_SIZE = 50  # размер одной ячейки

@@ -1,22 +1,34 @@
 import pygame
 from settings import *
 from player import Player
+from world import World
 
 pygame.init()
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Pygame")
+pygame.display.set_caption("Строитель мостов")
 clock = pygame.time.Clock()
 
 background_image = pygame.image.load('assets/images/background.png')
 
 is_running = True
 
-player = Player(50, 910)
+world_data = [
+    [2, 0, 0, 2, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
+    [1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+]
+
+player = Player(50, 700)
+world = World(world_data)
 
 while is_running:
     screen.blit(background_image, (0, 0))
 
+    world.draw(screen)
     player.update(screen)
 
     for event in pygame.event.get():
