@@ -3,6 +3,7 @@ from settings import *
 from utils import *
 from player import Player
 from world import World
+from bridge import Bridge
 
 pygame.init()
 
@@ -15,6 +16,7 @@ background_image = pygame.image.load('assets/images/background.png')
 is_running = True
 is_drawing_bridge = False
 is_falling_bridge = False
+screen_scroll = 0
 
 world_data = [
     [2, 0, 0, 2, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
@@ -30,11 +32,16 @@ world.set_data(world_data)
 player = Player(0, 650, world.tile_list)
 h = 0
 
+bridge_group = pygame.sprite.Group()
+
 while is_running:
     screen.blit(background_image, (0, 0))
 
-    world.draw(screen)
-    player.update(screen)
+    world.draw(screen, screen_scroll)
+    screen_scroll = player.update(screen, bridge_group)
+
+    bridge_group.update(screen_scroll)
+    bridge_group.draw(screen)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -50,7 +57,7 @@ while is_running:
                 is_falling_bridge = True
                 h1 = h
                 h = 0
-                a = 0
+                angle = 0
 
     if is_drawing_bridge:
         pygame.draw.line(screen, 'black',
@@ -59,25 +66,23 @@ while is_running:
         h += 3
 
     if is_falling_bridge:
-        if a <= 90:
-            x_ = h1 * sin_grad(a)
-            y_ = h1 * cos_grad(a)
+        if angle <= 90:
+            x_ = h1 * sin_grad(angle)
+            y_ = h1 * cos_grad(angle)
             pygame.draw.line(screen, 'black',
                              [player.rect.x, player.rect.y + player.image_height],
                              [player.rect.x + x_, player.rect.y + player.image_height - y_],
                              5)
-            a += 1
+            angle += 1
         else:
             is_falling_bridge = False
-            a = 0
+            angle = 0
 
-            tile_index_start = player.rect.x // TILE_SIZE if player.rect.x != 0 else 0
-            tile_index_end = (player.rect.x + h1) // TILE_SIZE
+            bridge_start = player.rect.x
+            bridge_end = h1
 
-            for i in range(tile_index_start, tile_index_end):
-                world_data[0][i] = 2
-            world.set_data(world_data)
-            print(tile_index_start, tile_index_end)
+            new_bridge = Bridge(player.rect.x, h1)
+            bridge_group.add(new_bridge)
 
     pygame.display.update()
     clock.tick(FPS)

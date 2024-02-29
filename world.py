@@ -30,6 +30,7 @@ class World:
 
             row_count += 1
 
-    def draw(self, screen):
+    def draw(self, screen, screen_scroll):
         for tile in self.tile_list:
+            tile[1].x += screen_scroll
             screen.blit(tile[0], tile[1])
