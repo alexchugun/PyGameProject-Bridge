@@ -10,21 +10,26 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.player_image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        print(self.rect.x, self.rect.centerx)
         self.image_width = self.player_image.get_width()
         self.image_height = self.player_image.get_height()
         self.velocity_y = 0
         self.dy = 0
         self.tile_list = tile_list
+        self.is_moving = False
 
     def update(self, screen, bridge_group) -> int:
         screen_scroll = 0
         dx = 0
         self.dy = 0
 
+        if self.is_moving:
+            dx += VELOCITY
+
         key = pygame.key.get_pressed()
 
-        if key[pygame.K_LEFT]:
-            dx -= VELOCITY
+        # if key[pygame.K_LEFT]:
+        #     dx -= VELOCITY
         if key[pygame.K_RIGHT]:
             dx += VELOCITY
 
