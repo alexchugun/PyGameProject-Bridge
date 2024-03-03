@@ -10,7 +10,6 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.player_image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        print(self.rect.x, self.rect.centerx)
         self.image_width = self.player_image.get_width()
         self.image_height = self.player_image.get_height()
         self.velocity_y = 0

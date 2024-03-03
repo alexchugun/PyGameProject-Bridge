@@ -31,7 +31,7 @@ world_data = [
 
 world = World()
 world.set_data(world_data)
-player = Player(50, 650, world.tile_list)
+player = Player(51, 650, world.tile_list)
 h = 0
 
 bridge_group = pygame.sprite.Group()
@@ -83,15 +83,29 @@ while is_running:
             bridge_start = player.rect.centerx
             bridge_end = h1
 
+
+
             # проверка надо ли пройти больше. ПОКА НЕ РАБОТАЕТ!!!
-            for tile in world.tile_list:
-                if tile[1].x < player.rect.x:
+            for i in range(len(world.tile_list) - 1):
+                print(world.tile_list[i])
+
+                # если земля до игрока то пропускаем
+                if world.tile_list[i][1].x < player.rect.x:
                     continue
-                if bridge_end > tile[1].x + TILE_SIZE:
+
+                # проверка что мост длиннее земли
+                if bridge_start + bridge_end > world.tile_list[i][1].x + TILE_SIZE and world.tile_list[i][1].x + TILE_SIZE != world.tile_list[i + 1][1].x:
+                    print(bridge_start + bridge_end, world.tile_list[i][1].x + TILE_SIZE)
                     h1 += player.image_width
                     break
-                if tile[1].x + TILE_SIZE >= SCREEN_WIDTH - SCROLL_THRESHOLD + bridge_end >= tile[1].x:
+
+                if world.tile_list[i][1].x + TILE_SIZE > bridge_start + bridge_end:
                     break
+
+                # if world.tile_list[i][1].x + TILE_SIZE >= SCREEN_WIDTH - SCROLL_THRESHOLD + bridge_end >= world.tile_list[i][1].x:
+                #     break
+
+            print('----------------------------------------------------------------')
 
             new_bridge = Bridge(player.rect.centerx, bridge_end)
             bridge_group.add(new_bridge)
