@@ -53,7 +53,7 @@ class Player(pygame.sprite.Sprite):
 
     def check_collision(self, bridge_group):
         for tile in self.tile_list:
-            if tile[1].colliderect(self.rect.x, self.rect.y + self.dy, self.image_width, self.image_height):
+            if tile[1].colliderect(self.rect.x, self.rect.y + self.dy, 1, self.image_height):
                 if self.velocity_y >= 0:
                     self.dy = tile[1].top - self.rect.bottom
                     self.velocity_y = 0

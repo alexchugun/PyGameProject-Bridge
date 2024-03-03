@@ -83,29 +83,33 @@ while is_running:
             bridge_start = player.rect.centerx
             bridge_end = h1
 
+            is_tile_match_bridge = False
 
-
-            # проверка надо ли пройти больше. ПОКА НЕ РАБОТАЕТ!!!
             for i in range(len(world.tile_list) - 1):
-                print(world.tile_list[i])
+                # print(world.tile_list[i])
 
                 # если земля до игрока то пропускаем
                 if world.tile_list[i][1].x < player.rect.x:
                     continue
 
-                # проверка что мост длиннее земли
-                if bridge_start + bridge_end > world.tile_list[i][1].x + TILE_SIZE and world.tile_list[i][1].x + TILE_SIZE != world.tile_list[i + 1][1].x:
-                    print(bridge_start + bridge_end, world.tile_list[i][1].x + TILE_SIZE)
-                    h1 += player.image_width
-                    break
+                # # проверка что мост длиннее земли
+                # if bridge_start + bridge_end > world.tile_list[i][1].x + TILE_SIZE and world.tile_list[i][1].x + TILE_SIZE != world.tile_list[i + 1][1].x:
+                #     print(bridge_start + bridge_end, world.tile_list[i][1].x + TILE_SIZE)
+                #     h1 += player.image_width
+                #     is_bridge_longer_tile = True
+                #     break
 
-                if world.tile_list[i][1].x + TILE_SIZE > bridge_start + bridge_end:
+                if world.tile_list[i][1].x + TILE_SIZE >= bridge_start + bridge_end >= world.tile_list[i][1].x:
+                    is_tile_match_bridge = True
                     break
 
                 # if world.tile_list[i][1].x + TILE_SIZE >= SCREEN_WIDTH - SCROLL_THRESHOLD + bridge_end >= world.tile_list[i][1].x:
                 #     break
 
             print('----------------------------------------------------------------')
+
+            if not is_tile_match_bridge:
+                h1 += player.image_width
 
             new_bridge = Bridge(player.rect.centerx, bridge_end)
             bridge_group.add(new_bridge)
