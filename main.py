@@ -45,6 +45,9 @@ while is_running:
     bridge_group.update(screen_scroll)
     bridge_group.draw(screen)
 
+    if not player.is_alive:
+        print('Death')
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             is_running = False

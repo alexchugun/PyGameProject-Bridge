@@ -16,6 +16,7 @@ class Player(pygame.sprite.Sprite):
         self.dy = 0
         self.tile_list = tile_list
         self.is_moving = False
+        self.is_alive = True
 
     def update(self, screen, bridge_group) -> int:
         screen_scroll = 0
@@ -39,6 +40,7 @@ class Player(pygame.sprite.Sprite):
         self.dy += self.velocity_y
 
         self.check_collision(bridge_group)
+        self.check_is_falling()
 
         self.rect.x += dx
         self.rect.y += self.dy
@@ -60,3 +62,7 @@ class Player(pygame.sprite.Sprite):
 
         if pygame.sprite.spritecollide(self, bridge_group, False):
             self.dy = 0
+
+    def check_is_falling(self):
+        if self.rect.bottom > SCREEN_HEIGHT:
+            self.is_alive = False
