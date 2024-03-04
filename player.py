@@ -28,8 +28,6 @@ class Player(pygame.sprite.Sprite):
 
         key = pygame.key.get_pressed()
 
-        # if key[pygame.K_LEFT]:
-        #     dx -= VELOCITY
         if key[pygame.K_RIGHT]:
             dx += VELOCITY
 

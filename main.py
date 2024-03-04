@@ -14,6 +14,12 @@ def restart_level():
     world.set_data(world_data)
 
 
+def draw_text(text, t_x, t_y, text_size=40):
+    font = pygame.font.SysFont('Arial', text_size)
+    t = font.render(text, True, (255, 255, 255))
+    screen.blit(t, (t_x, t_y))
+
+
 pygame.init()
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -31,6 +37,7 @@ is_drawing_bridge = False
 is_falling_bridge = False
 is_start_game = False
 screen_scroll = 0
+score = 0
 
 world_data = [
     [2, 2, 0, 2, 0, 0, 0, 2, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2],
@@ -71,6 +78,8 @@ while is_running:
             bridge_group.update(screen_scroll)
             bridge_group.draw(screen)
 
+            draw_text(f'Очки: {score}', 10, 10)
+
             if is_drawing_bridge:
                 pygame.draw.line(screen, 'black',
                                  [player.rect.centerx, player.rect.y + player.image_height],
@@ -102,24 +111,14 @@ while is_running:
                         if world.tile_list[i][1].x < player.rect.x:
                             continue
 
-                        # # проверка что мост длиннее земли
-                        # if bridge_start + bridge_end > world.tile_list[i][1].x + TILE_SIZE and world.tile_list[i][1].x + TILE_SIZE != world.tile_list[i + 1][1].x:
-                        #     print(bridge_start + bridge_end, world.tile_list[i][1].x + TILE_SIZE)
-                        #     h1 += player.image_width
-                        #     is_bridge_longer_tile = True
-                        #     break
-
                         if world.tile_list[i][1].x + TILE_SIZE >= bridge_start + bridge_end >= world.tile_list[i][1].x:
                             is_tile_match_bridge = True
                             break
 
-                        # if world.tile_list[i][1].x + TILE_SIZE >= SCREEN_WIDTH - SCROLL_THRESHOLD + bridge_end >= world.tile_list[i][1].x:
-                        #     break
-
-                    print('----------------------------------------------------------------')
-
                     if not is_tile_match_bridge:
                         h1 += player.image_width
+                    else:
+                        score += 1
 
                     new_bridge = Bridge(player.rect.centerx, bridge_end)
                     bridge_group.add(new_bridge)
@@ -128,7 +127,7 @@ while is_running:
                     dx = 0
 
             if player.is_moving:
-                if dx <= h1:  # + player.image_width
+                if dx <= h1:
                     dx += VELOCITY
                 else:
                     player.is_moving = False
@@ -138,6 +137,7 @@ while is_running:
             if restart_btn.draw(screen):
                 restart_level()
                 player = Player(51, 650, world.tile_list)
+                score = 0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
