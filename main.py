@@ -8,6 +8,12 @@ from world import World
 from bridge import Bridge
 from button import Button
 
+
+def restart_level():
+    bridge_group.empty()
+    world.set_data(world_data)
+
+
 pygame.init()
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -18,6 +24,7 @@ background_image = pygame.image.load('assets/images/background.png')
 screen_saver_image = pygame.image.load('assets/images/screen_saver.png')
 start_btn_image = pygame.image.load('assets/images/play_btn.png')
 exit_btn_image = pygame.image.load('assets/images/exit_btn.png')
+restart_btn_image = pygame.image.load('assets/images/restart_btn.png')
 
 is_running = True
 is_drawing_bridge = False
@@ -41,6 +48,7 @@ h = 0
 
 start_btn = Button(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 - 250, start_btn_image, 1)
 exit_btn = Button(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 + 100, exit_btn_image, 1)
+restart_btn = Button(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2, restart_btn_image, 1)
 
 bridge_group = pygame.sprite.Group()
 
@@ -54,79 +62,82 @@ while is_running:
         if exit_btn.draw(screen):
             is_running = False
     else:
+        if player.is_alive:
+            screen.blit(background_image, (0, 0))
 
-        screen.blit(background_image, (0, 0))
+            world.draw(screen, screen_scroll)
+            screen_scroll = player.update(screen, bridge_group)
 
-        world.draw(screen, screen_scroll)
-        screen_scroll = player.update(screen, bridge_group)
+            bridge_group.update(screen_scroll)
+            bridge_group.draw(screen)
 
-        bridge_group.update(screen_scroll)
-        bridge_group.draw(screen)
-
-        if not player.is_alive:
-            print('Death')
-
-        if is_drawing_bridge:
-            pygame.draw.line(screen, 'black',
-                             [player.rect.centerx, player.rect.y + player.image_height],
-                             [player.rect.centerx, player.rect.y - h], 5)
-            h += 3
-
-        if is_falling_bridge:
-            if angle <= 90:
-                x_ = h1 * sin_grad(angle)
-                y_ = h1 * cos_grad(angle)
+            if is_drawing_bridge:
                 pygame.draw.line(screen, 'black',
                                  [player.rect.centerx, player.rect.y + player.image_height],
-                                 [player.rect.centerx + x_, player.rect.y + player.image_height - y_],
-                                 5)
-                angle += 1
-            else:
-                is_falling_bridge = False
-                angle = 0
+                                 [player.rect.centerx, player.rect.y - h], 5)
+                h += 3
 
-                bridge_start = player.rect.centerx
-                bridge_end = h1
+            if is_falling_bridge:
+                if angle <= 90:
+                    x_ = h1 * sin_grad(angle)
+                    y_ = h1 * cos_grad(angle)
+                    pygame.draw.line(screen, 'black',
+                                     [player.rect.centerx, player.rect.y + player.image_height],
+                                     [player.rect.centerx + x_, player.rect.y + player.image_height - y_],
+                                     5)
+                    angle += 1
+                else:
+                    is_falling_bridge = False
+                    angle = 0
 
-                is_tile_match_bridge = False
+                    bridge_start = player.rect.centerx
+                    bridge_end = h1
 
-                for i in range(len(world.tile_list) - 1):
-                    # print(world.tile_list[i])
+                    is_tile_match_bridge = False
 
-                    # если земля до игрока то пропускаем
-                    if world.tile_list[i][1].x < player.rect.x:
-                        continue
+                    for i in range(len(world.tile_list) - 1):
+                        # print(world.tile_list[i])
 
-                    # # проверка что мост длиннее земли
-                    # if bridge_start + bridge_end > world.tile_list[i][1].x + TILE_SIZE and world.tile_list[i][1].x + TILE_SIZE != world.tile_list[i + 1][1].x:
-                    #     print(bridge_start + bridge_end, world.tile_list[i][1].x + TILE_SIZE)
-                    #     h1 += player.image_width
-                    #     is_bridge_longer_tile = True
-                    #     break
+                        # если земля до игрока то пропускаем
+                        if world.tile_list[i][1].x < player.rect.x:
+                            continue
 
-                    if world.tile_list[i][1].x + TILE_SIZE >= bridge_start + bridge_end >= world.tile_list[i][1].x:
-                        is_tile_match_bridge = True
-                        break
+                        # # проверка что мост длиннее земли
+                        # if bridge_start + bridge_end > world.tile_list[i][1].x + TILE_SIZE and world.tile_list[i][1].x + TILE_SIZE != world.tile_list[i + 1][1].x:
+                        #     print(bridge_start + bridge_end, world.tile_list[i][1].x + TILE_SIZE)
+                        #     h1 += player.image_width
+                        #     is_bridge_longer_tile = True
+                        #     break
 
-                    # if world.tile_list[i][1].x + TILE_SIZE >= SCREEN_WIDTH - SCROLL_THRESHOLD + bridge_end >= world.tile_list[i][1].x:
-                    #     break
+                        if world.tile_list[i][1].x + TILE_SIZE >= bridge_start + bridge_end >= world.tile_list[i][1].x:
+                            is_tile_match_bridge = True
+                            break
 
-                print('----------------------------------------------------------------')
+                        # if world.tile_list[i][1].x + TILE_SIZE >= SCREEN_WIDTH - SCROLL_THRESHOLD + bridge_end >= world.tile_list[i][1].x:
+                        #     break
 
-                if not is_tile_match_bridge:
-                    h1 += player.image_width
+                    print('----------------------------------------------------------------')
 
-                new_bridge = Bridge(player.rect.centerx, bridge_end)
-                bridge_group.add(new_bridge)
+                    if not is_tile_match_bridge:
+                        h1 += player.image_width
 
-                player.is_moving = True
-                dx = 0
+                    new_bridge = Bridge(player.rect.centerx, bridge_end)
+                    bridge_group.add(new_bridge)
 
-        if player.is_moving:
-            if dx <= h1:  # + player.image_width
-                dx += VELOCITY
-            else:
-                player.is_moving = False
+                    player.is_moving = True
+                    dx = 0
+
+            if player.is_moving:
+                if dx <= h1:  # + player.image_width
+                    dx += VELOCITY
+                else:
+                    player.is_moving = False
+        else:
+            screen_scroll = 0
+
+            if restart_btn.draw(screen):
+                restart_level()
+                player = Player(51, 650, world.tile_list)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
