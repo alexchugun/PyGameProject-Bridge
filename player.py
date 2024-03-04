@@ -1,3 +1,5 @@
+from typing import Tuple, List, Any
+
 import pygame.transform
 from settings import *
 
@@ -27,7 +29,7 @@ class Player(pygame.sprite.Sprite):
         self.is_moving = False
         self.is_alive = True
 
-    def update(self, screen, bridge_group) -> int:
+    def update(self, screen, bridge_group, exit_group) -> tuple[int, bool]:
         screen_scroll = 0
         dx = 0
         self.dy = 0
@@ -58,7 +60,7 @@ class Player(pygame.sprite.Sprite):
 
         self.dy += self.velocity_y
 
-        self.check_collision(bridge_group)
+        level_complete = self.check_collision(bridge_group, exit_group)
         self.check_is_falling()
 
         self.rect.x += dx
@@ -70,9 +72,9 @@ class Player(pygame.sprite.Sprite):
 
         screen.blit(self.player_image, self.rect)
 
-        return screen_scroll
+        return screen_scroll, level_complete
 
-    def check_collision(self, bridge_group):
+    def check_collision(self, bridge_group, exit_group):
         for tile in self.tile_list:
             if tile[1].colliderect(self.rect.x, self.rect.y + self.dy, 1, self.image_height):
                 if self.velocity_y >= 0:
@@ -81,6 +83,11 @@ class Player(pygame.sprite.Sprite):
 
         if pygame.sprite.spritecollide(self, bridge_group, False):
             self.dy = 0
+
+        if pygame.sprite.spritecollide(self, exit_group, False):
+            return True
+        else:
+            return False
 
     def check_is_falling(self):
         if self.rect.bottom > SCREEN_HEIGHT:

@@ -65,7 +65,7 @@ with open(f'levels/level{level}.csv', newline='') as csvfile:
             world_data[x][y] = int(tile)
 
 world = World()
-world.set_data(world_data)
+exit = world.set_data(world_data)
 player = Player(51, 650, world.tile_list)
 h = 0
 
@@ -74,6 +74,9 @@ exit_btn = Button(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 + 100, exit_btn_im
 restart_btn = Button(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2, restart_btn_image, 1)
 
 bridge_group = pygame.sprite.Group()
+exit_group = pygame.sprite.Group()
+
+exit_group.add(exit)
 
 while is_running:
     if not is_start_game:
@@ -92,10 +95,14 @@ while is_running:
             screen.blit(background_image, (0, 0))
 
             world.draw(screen, screen_scroll)
-            screen_scroll = player.update(screen, bridge_group)
+            screen_scroll, level_complete = player.update(screen, bridge_group, exit_group)
+            print(level_complete)
 
             bridge_group.update(screen_scroll)
             bridge_group.draw(screen)
+
+            exit_group.update(screen_scroll)
+            exit_group.draw(screen)
 
             draw_text(f'Очки: {score}', 10, 10)
 

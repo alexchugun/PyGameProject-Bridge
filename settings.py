@@ -6,7 +6,7 @@ FPS = 60
 VELOCITY = 5
 TILE_SIZE = 50  # размер одной ячейки
 
-ROWS = 5
+ROWS = 6
 COLS = 33
 
 WALKING_COOLDOWN = 3
