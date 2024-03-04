@@ -8,6 +8,7 @@ from player import Player
 from world import World
 from bridge import Bridge
 from button import Button
+import csv
 
 
 def restart_level():
@@ -50,15 +51,18 @@ is_falling_bridge = False
 is_start_game = False
 screen_scroll = 0
 score = 0
+level = 1
 
-world_data = [
-    [2, 2, 0, 2, 0, 0, 0, 2, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2],
-    [1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-]
+world_data = []
+for row in range(ROWS):
+    r = [0] * COLS
+    world_data.append(r)
+
+with open(f'levels/level{level}.csv', newline='') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    for x, row in enumerate(reader):
+        for y, tile in enumerate(row):
+            world_data[x][y] = int(tile)
 
 world = World()
 world.set_data(world_data)
