@@ -5,8 +5,17 @@ from settings import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, tile_list):
         pygame.sprite.Sprite.__init__(self)
-        player_image = pygame.image.load('assets/images/player.png')
-        self.player_image = pygame.transform.scale(player_image, (40, 40))
+
+        self.images = []
+        self.index = 0
+        self.count = 0
+
+        for i in range(1, 3):
+            player_image = pygame.image.load(f'assets/images/player{i}.png')
+            player_image = pygame.transform.scale(player_image, (40, 40))
+            self.images.append(player_image)
+
+        self.player_image = self.images[self.index]
         self.rect = self.player_image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -25,11 +34,23 @@ class Player(pygame.sprite.Sprite):
 
         if self.is_moving:
             dx += VELOCITY
+            self.count += 1
+        else:
+            key = pygame.key.get_pressed()
 
-        key = pygame.key.get_pressed()
+            if key[pygame.K_RIGHT]:
+                dx += VELOCITY
+                self.count += 1
+            else:
+                self.count = 0
+                self.index = 0
+                self.player_image = self.images[self.index]
 
-        if key[pygame.K_RIGHT]:
-            dx += VELOCITY
+        if self.count > WALKING_COOLDOWN:
+            self.count = 0
+            self.index += 1
+            self.index %= 2
+            self.player_image = self.images[self.index]
 
         self.velocity_y += 1
         if self.velocity_y > 10:

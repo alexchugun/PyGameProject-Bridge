@@ -9,3 +9,5 @@ TILE_SIZE = 50  # размер одной ячейки
 ROWS = 5
 COLS = 33
 
+WALKING_COOLDOWN = 3
+
