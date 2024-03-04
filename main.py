@@ -1,6 +1,7 @@
 import pprint
 
 import pygame
+from pygame import mixer
 from settings import *
 from utils import *
 from player import Player
@@ -20,6 +21,7 @@ def draw_text(text, t_x, t_y, text_size=40):
     screen.blit(t, (t_x, t_y))
 
 
+mixer.init()
 pygame.init()
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -31,6 +33,16 @@ screen_saver_image = pygame.image.load('assets/images/screen_saver.png')
 start_btn_image = pygame.image.load('assets/images/play_btn.png')
 exit_btn_image = pygame.image.load('assets/images/exit_btn.png')
 restart_btn_image = pygame.image.load('assets/images/restart_btn.png')
+
+pygame.mixer.music.load('assets/audio/background.mp3')
+pygame.mixer.music.set_volume(0.15)
+pygame.mixer.music.play(-1, 0.0, 3000)
+bridge_build_sound = pygame.mixer.Sound('assets/audio/bridge_build.mp3')
+bridge_build_sound.set_volume(0.5)
+bridge_falling_sound = pygame.mixer.Sound('assets/audio/bridge_falling.mp3')
+bridge_falling_sound.set_volume(1)
+game_over_sound = pygame.mixer.Sound('assets/audio/game_over.mp3')
+game_over_sound.set_volume(1)
 
 is_running = True
 is_drawing_bridge = False
@@ -62,6 +74,9 @@ bridge_group = pygame.sprite.Group()
 while is_running:
     if not is_start_game:
         screen.blit(screen_saver_image, (0, 0))
+
+        draw_text('Добро пожаловать в игру Строитель мостов!', 150, 800)
+        draw_text('Управление: пробел - строить мост, -> - двигаться', 150, 850)
 
         if start_btn.draw(screen):
             is_start_game = True
@@ -133,6 +148,8 @@ while is_running:
                     player.is_moving = False
         else:
             screen_scroll = 0
+            draw_text('Вы погибли!', 400, 420)
+            # game_over_sound.play(1)
 
             if restart_btn.draw(screen):
                 restart_level()
@@ -147,6 +164,7 @@ while is_running:
                 is_drawing_bridge = True
                 is_falling_bridge = False
                 x, y = player.rect.x, player.rect.y
+                bridge_build_sound.play(30)
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
                 is_drawing_bridge = False
@@ -154,6 +172,8 @@ while is_running:
                 h1 = h
                 h = 0
                 angle = 0
+                bridge_build_sound.stop()
+                bridge_falling_sound.play()
 
     pygame.display.update()
     clock.tick(FPS)
