@@ -11,9 +11,24 @@ from button import Button
 import csv
 
 
-def restart_level():
+def load_level():
     bridge_group.empty()
-    world.set_data(world_data)
+    exit_group.empty()
+
+    world_data = []
+    for row in range(ROWS):
+        r = [0] * COLS
+        world_data.append(r)
+
+    with open(f'levels/level{level}.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for x, row in enumerate(reader):
+            for y, tile in enumerate(row):
+                world_data[x][y] = int(tile)
+
+    return world_data
+
+    # world.set_data(world_data)
 
 
 def draw_text(text, t_x, t_y, text_size=40):
@@ -53,19 +68,22 @@ screen_scroll = 0
 score = 0
 level = 1
 
-world_data = []
-for row in range(ROWS):
-    r = [0] * COLS
-    world_data.append(r)
+# world_data = []
+# for row in range(ROWS):
+#     r = [0] * COLS
+#     world_data.append(r)
+#
+# with open(f'levels/level{level}.csv', newline='') as csvfile:
+#     reader = csv.reader(csvfile, delimiter=',')
+#     for x, row in enumerate(reader):
+#         for y, tile in enumerate(row):
+#             world_data[x][y] = int(tile)
 
-with open(f'levels/level{level}.csv', newline='') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
-    for x, row in enumerate(reader):
-        for y, tile in enumerate(row):
-            world_data[x][y] = int(tile)
+bridge_group = pygame.sprite.Group()
+exit_group = pygame.sprite.Group()
 
 world = World()
-exit = world.set_data(world_data)
+exit_door = world.set_data(load_level())
 player = Player(51, 650, world.tile_list)
 h = 0
 
@@ -73,10 +91,7 @@ start_btn = Button(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 - 250, start_btn_
 exit_btn = Button(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 + 100, exit_btn_image, 1)
 restart_btn = Button(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2, restart_btn_image, 1)
 
-bridge_group = pygame.sprite.Group()
-exit_group = pygame.sprite.Group()
-
-exit_group.add(exit)
+exit_group.add(exit_door)
 
 while is_running:
     if not is_start_game:
@@ -96,7 +111,6 @@ while is_running:
 
             world.draw(screen, screen_scroll)
             screen_scroll, level_complete = player.update(screen, bridge_group, exit_group)
-            print(level_complete)
 
             bridge_group.update(screen_scroll)
             bridge_group.draw(screen)
@@ -105,6 +119,7 @@ while is_running:
             exit_group.draw(screen)
 
             draw_text(f'Очки: {score}', 10, 10)
+            draw_text(f'Уровень: {level}', 800, 10)
 
             if is_drawing_bridge:
                 pygame.draw.line(screen, 'black',
@@ -131,7 +146,6 @@ while is_running:
                     is_tile_match_bridge = False
 
                     for i in range(len(world.tile_list) - 1):
-                        # print(world.tile_list[i])
 
                         # если земля до игрока то пропускаем
                         if world.tile_list[i][1].x < player.rect.x:
@@ -157,13 +171,27 @@ while is_running:
                     dx += VELOCITY
                 else:
                     player.is_moving = False
+
+            if level_complete:
+                level += 1
+                screen_scroll = 0
+
+                if level <= MAX_LEVELS:
+                    world = World()
+                    exit_door = world.set_data(load_level())
+                    exit_group.add(exit_door)
+                    player = Player(51, 650, world.tile_list)
+                else:
+                    draw_text('Поздравляем! Вы прошли всю игру!!!', 200, 500)
+                    level = MAX_LEVELS
         else:
             screen_scroll = 0
             draw_text('Вы погибли!', 400, 420)
-            # game_over_sound.play(1)
 
             if restart_btn.draw(screen):
-                restart_level()
+                world = World()
+                exit_door = world.set_data(load_level())
+                exit_group.add(exit_door)
                 player = Player(51, 650, world.tile_list)
                 score = 0
 
