@@ -1,5 +1,3 @@
-import pprint
-
 import pygame
 from pygame import mixer
 from settings import *
@@ -20,7 +18,7 @@ def load_level():
         r = [0] * COLS
         world_data.append(r)
 
-    with open(f'levels/level{level}.csv', newline='') as csvfile:
+    with open(f'assets/levels/level{level}.csv', newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for x, row in enumerate(reader):
             for y, tile in enumerate(row):
@@ -28,7 +26,21 @@ def load_level():
 
     return world_data
 
-    # world.set_data(world_data)
+
+def load_background():
+    return pygame.image.load(f'assets/images/background{level}.png')
+
+
+def get_best_score():
+    with open('assets/score/score.txt', 'rt') as f:
+        read_data = f.read()
+
+    return int(read_data)
+
+
+def set_best_score(score):
+    with open('assets/score/score.txt', 'wt') as f:
+        f.write(str(score))
 
 
 def draw_text(text, t_x, t_y, text_size=40):
@@ -40,11 +52,19 @@ def draw_text(text, t_x, t_y, text_size=40):
 mixer.init()
 pygame.init()
 
+is_running = True
+is_drawing_bridge = False
+is_falling_bridge = False
+is_start_game = False
+screen_scroll = 0
+score = 0
+level = 1
+
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Строитель мостов")
 clock = pygame.time.Clock()
 
-background_image = pygame.image.load('assets/images/background.png')
+background_image = load_background()
 screen_saver_image = pygame.image.load('assets/images/screen_saver.png')
 start_btn_image = pygame.image.load('assets/images/play_btn.png')
 exit_btn_image = pygame.image.load('assets/images/exit_btn.png')
@@ -59,25 +79,6 @@ bridge_falling_sound = pygame.mixer.Sound('assets/audio/bridge_falling.mp3')
 bridge_falling_sound.set_volume(1)
 game_over_sound = pygame.mixer.Sound('assets/audio/game_over.mp3')
 game_over_sound.set_volume(1)
-
-is_running = True
-is_drawing_bridge = False
-is_falling_bridge = False
-is_start_game = False
-screen_scroll = 0
-score = 0
-level = 1
-
-# world_data = []
-# for row in range(ROWS):
-#     r = [0] * COLS
-#     world_data.append(r)
-#
-# with open(f'levels/level{level}.csv', newline='') as csvfile:
-#     reader = csv.reader(csvfile, delimiter=',')
-#     for x, row in enumerate(reader):
-#         for y, tile in enumerate(row):
-#             world_data[x][y] = int(tile)
 
 bridge_group = pygame.sprite.Group()
 exit_group = pygame.sprite.Group()
@@ -180,18 +181,26 @@ while is_running:
                     world = World()
                     exit_door = world.set_data(load_level())
                     exit_group.add(exit_door)
+                    background_image = load_background()
                     player = Player(51, 650, world.tile_list)
                 else:
                     draw_text('Поздравляем! Вы прошли всю игру!!!', 200, 500)
                     level = MAX_LEVELS
         else:
             screen_scroll = 0
+            level = 1
             draw_text('Вы погибли!', 400, 420)
+
+            current_best_score = get_best_score()
+            if score > current_best_score:
+                set_best_score(score)
+                draw_text(f'Новый лучший результат: {score}', 250, 600)
 
             if restart_btn.draw(screen):
                 world = World()
                 exit_door = world.set_data(load_level())
                 exit_group.add(exit_door)
+                background_image = load_background()
                 player = Player(51, 650, world.tile_list)
                 score = 0
 

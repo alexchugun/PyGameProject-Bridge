@@ -1,5 +1,3 @@
-from typing import Tuple, List, Any
-
 import pygame.transform
 from settings import *
 
